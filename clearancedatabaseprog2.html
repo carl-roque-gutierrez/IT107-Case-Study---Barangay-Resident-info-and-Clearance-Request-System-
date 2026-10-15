@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Clearance Database</title>
+</head>
+<body>
+
+    <h1>Clearance Records</h1>
+
+
+    <div class="topnav">
+        <input type="text" placeholder="Search..">
+    </div><br>
+
+    <button onclick="location.href='residentdatabaseprog3.html'">
+        Go to Residents
+    </button><br><br>
+
+    <input type="text" id="request" placeholder="Request"><br><br>
+    <p><select id="Request Type">
+            <option value="0">Please Select Request Type</option>
+            <option value="indency">Indency</option>
+            <option value="clearance">Clearance</option>
+            <option value="business">Business</option></p><br><br>
+            <br><br>
+    <input type="text" id="purpose" placeholder="Purpose of Request"><br><br>
+    <input type="button" id="clearancebutton" onclick="addRequest()" value="Add Clearnace Record">
+
+    
+
+    </body>
+</html>
