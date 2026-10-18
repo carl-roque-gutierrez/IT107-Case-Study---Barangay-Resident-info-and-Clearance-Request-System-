@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Resident Database</title>
+</head>
+ 
+<body>
+ 
+    <h1>Inhabitant Records</h1>
+    
+    <input type="text" id="id" placeholder="ID Number"><br><br>
+    <input type="text" id="lname" placeholder="Last Name"><br><br>
+    <input type="text" id="lname" placeholder="Last Name"><br><br>
+    <input type="text" id="fname" placeholder="First Name"><br><br>
+    <input type="text" id="mname" placeholder="Middle Name"><br><br>
+    <input type="number" id="age" placeholder="Age"><br><br>
+    <input type="text" id="sex" placeholder="Sex"><br><br>
+    <input type="text" id="mstat" placeholder="Marital Status"><br><br>
+    <input type="text" id="address" placeholder="Address"><br><br>
+    <input type="text" id="occupation" placeholder="Occupation"><br><br>
+    <input type="text" id="houseinfo" placeholder="Household Information"><br><br>
+    <input type="text" id="yearsin" placeholder="Years in Kalawaan"><br><br>
+    <input type="email" id="email" placeholder="Email"><br><br>
+    <input type="text" id="numberr" placeholder="Contact Number"><br><br>
+    <input type="button" id="inhabitantButton"
+           onclick="addresident()" value="Add Resident">
+ 
+    <hr>
+ 
+    <table border="1" cellpadding="8">
+ 
+        <tr>
+            <th>ID</th>
+            <th>Last Name</th>
+            <th>First Name</th>
+            <th>Middle Name</th>
+            <th>Age</th>
+            <th>Sex</th>
+            <th>Marital Status</th>
+            <th>Address</th>
+            <th>Occupation</th>
+            <th>Household Infomation</th>
+            <th>Years in the Barangay</th>
+            <th>Email</th>
+            <th>Contact Number</th>
+            <th>Action</th>
+        </tr>
+ 
+        <tbody id="inhabitantTable"></tbody>
+ 
+    </table>
+ 
+    <p id="message"></p>
+ 
+    <script>
+ 
+        var savedData = localStorage.getItem("residents_db_sample");
+ 
+        if (savedData == null) {
+ 
+            var inhabitants = [
+                {id:"676676767", lname:"Gutierrez", fname:"Carl Justin", mname:"Roque", age:19, sex:"Male", mstat:"Single", address:"Kalawaan Blah Blah", occupation:"Student", houseinfo:"Resident", yearsin:"19", email:"gutierrezcarljustin1@gmail.com", numberr:"09888888888"},
+                {id:"3939393939", lname:"Peroramas", fname:"John Vincent", mname:"Abihay", age:19, sex:"Male", mstat:"Single with benefits", address:"Kalawaan Blah Blah", occupation:"Student", houseinfo:"Resident", yearsin:"19", email:"n/a", numberr:"090909090990"},
+            ];
+ 
+            localStorage.setItem(
+                "residents_db_sample",
+                JSON.stringify(inhabitants)
+            );
+ 
+        } else {
+ 
+            var inhabitants = JSON.parse(savedData);
+ 
+        }
+
+        // Variable for editing
+        var editIndex = -1;
+ 
+ 
+        // Adding Inhabitant
+        function addInhabitant() {
+ 
+            var id = document.getElementById("id").value;
+            var lname = document.getElementById("lname").value;
+            var fname = document.getElementById("fname").value;
+            var mname = document.getElementById("mname").value;
+            var age = document.getElementById("age").value;
+            var sex = document.getElementById("sex").value;
+            var mstat = document.getElementById("mstat").value;
+            var address = document.getElementById("address").value;
+            var occupation = document.getElementById("occupation").value;
+            var houseinfo = document.getElementById("houseinfo").value;
+            var yearsin = document.getElementById("yearsin").value;
+            var email = document.getElementById("email").value;
+            var numberr = document.getElementById("numberr").value;
+ 
+            inhabitants.push({
+                id: id,
+                lname: lname,
+                fname: fname,
+                mname: mname,
+                age: age,
+                sex: sex,
+                mstat: mstat
+                address: address,
+                occupation: occupation,
+                houseinfo: houseinfo
+                yearsin: yearsin,
+                email: email
+                numberr: numberr
+            });
+ 
+            localStorage.setItem(
+                "residents_db_sample",
+                JSON.stringify(students)
+            );
+ 
+            alert("Inhabitant added successfully.");
+ 
+            document.getElementById("message").innerHTML =
+                "Inhabitant added successfully.";
+ 
+            clearForm();
+ 
+            displayStudents();
+        }
+ 
+ 
+        // DISPLAY STUDENTS
+        function displayInhabitants() {
+ 
+            var table = "";
+ 
+            for (var i = 0; i < inhabitants.length; i++) {
+ 
+                table += "<tr>";
+ 
+                table += "<td>" + inhabitants[i].id + "</td>";
+                table += "<td>" + inhabitants[i].lname + "</td>";
+                table += "<td>" + inhabitants[i].fname + "</td>";
+                table += "<td>" + inhabitants[i].mname + "</td>";
+                table += "<td>" + inhabitants[i].age + "</td>";
+                table += "<td>" + inhabitants[i].sex + "</td>";
+                table += "<td>" + inhabitants[i].mstat + "</td>";
+                table += "<td>" + inhabitants[i].address + "</td>";
+                table += "<td>" + inhabitants[i].occupation + "</td>";
+                table += "<td>" + inhabitants[i].houseinfo + "</td>";
+                table += "<td>" + inhabitants[i].yearsin + "</td>";
+                table += "<td>" + inhabitants[i].email + "</td>";
+                table += "<td>" + inhabitants[i].numberr + "</td>";
+
+
+                table += "<td>";
+ 
+                table += "<input type='button' value='Edit' ";
+                table += "onclick='editInhabitant(" + i + ")'> ";
+ 
+                table += "<input type='button' value='Delete' ";
+                table += "onclick='deleteInhabitant(" + i + ")'>";
+ 
+                table += "</td>";
+ 
+                table += "</tr>";
+            }
+ 
+            document.getElementById("InhabitantTable").innerHTML = table;
+        }
+ 
+        // Variables for editing
+        var editIndex = -1;
+        // EDIT INHABITANT
+        function editInhabitant(index) {
+ 
+            alert("You selected Edit.");
+ 
+            editIndex = index;
+ 
+            // Put selected student data into the same input form
+            document.getElementById("id").value =
+                inhabitants[index].id;
+ 
+            document.getElementById("lname").value =
+                inhabitants[index].lname;
+ 
+            document.getElementById("fname").value =
+                inhabitants[index].fname;
+ 
+            document.getElementById("mname").value =
+                inhabitants[index].mname;
+                
+            document.getElementById("age").value =
+                inhabitants[index].age;
+
+            document.getElementById("sex").value =
+                inhabitants[index].sex;
+
+            document.getElementById("mstat").value =
+                inhabitants[index].mstat;
+
+            document.getElementById("address").value =
+                inhabitants[index].address;
+
+            document.getElementById("ocupation").value =
+                inhabitants[index].ocupation;
+
+            document.getElementById("houseinfo").value =
+                inhabitants[index].houseinfo;
+
+            document.getElementById("email").value =
+                inhabitants[index].email;
+
+            document.getElementById("number").value =
+                inhabitants[index].number;
+ 
+            // Change Add Student button to Update Student
+            document.getElementById("inhabitantButton").value =
+                "Update Inhabitant";
+ 
+            document.getElementById("inhabitantButton").onclick =
+                updateInhabitant;
+ 
+            document.getElementById("message").innerHTML =
+                "You are editing: " + inhabitants[index].name;
+        }
+
+        // UPDATE STUDENT
+        function updateInhabitant() {
+ 
+             var id = document.getElementById("id").value;
+            var lname = document.getElementById("lname").value;
+            var fname = document.getElementById("fname").value;
+            var mname = document.getElementById("mname").value;
+            var age = document.getElementById("age").value;
+            var sex = document.getElementById("sex").value;
+            var mstat = document.getElementById("mstat").value;
+            var address = document.getElementById("address").value;
+            var occupation = document.getElementById("occupation").value;
+            var houseinfo = document.getElementById("houseinfo").value;
+            var yearsin = document.getElementById("yearsin").value;
+            var email = document.getElementById("email").value;
+            var numberr = document.getElementById("numberr").value;
+ 
+            inhabitants[editIndex] = {
+                id: id,
+                lname: lname,
+                fname: fname,
+                mname: mname,
+                age: age,
+                sex: sex,
+                mstat: mstat
+                address: address,
+                occupation: occupation,
+                houseinfo: houseinfo
+                yearsin: yearsin,
+                email: email
+                numberr: numberr
+            };
+ 
+            localStorage.setItem(
+                "residents_db_sample",
+                JSON.stringify(inhabitants)
+            );
+ 
+            alert("Inhabitant updated successfully.");
+ 
+            document.getElementById("message").innerHTML =
+                "Inhabitant updated successfully.";
+ 
+            clearForm();
+ 
+            editIndex = -1;
+ 
+            // Change button back to Add Student
+            document.getElementById("inhabitantButton").value =
+                "Add Inhabitant";
+ 
+            document.getElementById("inhabitantButton").onclick =
+                addInhabitant;
+ 
+            displayStudents();
+        }
+ 
+ 
+        // DELETE STUDENT
+        function deleteInhabitant(index) {
+ 
+            var answer = confirm(
+                "Are you sure you want to delete " +
+                inhabitants[index].name + "?"
+            );
+ 
+            if (answer == true) {
+ 
+                inhabitants.splice(index, 1);
+ 
+                localStorage.setItem(
+                    "residents_db_sample",
+                    JSON.stringify(students)
+                );
+ 
+                alert("Inhabitant deleted successfully.");
+ 
+                document.getElementById("message").innerHTML =
+                    "Inhabitant deleted successfully.";
+ 
+                displayInhabitants();
+ 
+            } else {
+ 
+                alert("Delete cancelled.");
+ 
+            }
+        }
+ 
+ 
+        // CLEAR FORM
+        function clearForm() {
+ 
+            document.getElementById("id").value = "";
+            document.getElementById("lname").value = "";
+            document.getElementById("fname").value = "";
+            document.getElementById("mname").value = "";
+            document.getElementById("age").value = "";
+            document.getElementById("sex").value = "";
+            document.getElementById("mstat").value = "";
+            document.getElementById("address").value = "";
+            document.getElementById("occupation").value = "";
+            document.getElementById("houseinfo").value = "";
+            document.getElementById("yearsin").value = "";
+            document.getElementById("email").value = "";
+            document.getElementById("numberr").value = "";
+
+        }
+ 
+ 
+        // DISPLAY DATA WHEN PAGE LOADS
+        displayInhabitants();
+ 
+    </script>
+ 
+</body>
+</html>
+ 

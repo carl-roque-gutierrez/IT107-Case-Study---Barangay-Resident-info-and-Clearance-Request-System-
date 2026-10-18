@@ -1,0 +1,251 @@
+CRUD WITH JSON DATA
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Student Database</title>
+</head>
+ 
+<body>
+ 
+    <h1>Student Records</h1>
+ 
+    <input type="text" id="id" placeholder="Student ID"><br><br>
+    <input type="text" id="name" placeholder="Student Name"><br><br>
+    <input type="number" id="age" placeholder="Age"><br><br>
+    <input type="text" id="course" placeholder="Course"><br><br>
+ 
+    <input type="button" id="studentButton"
+           onclick="addStudent()" value="Add Student">
+ 
+    <hr>
+ 
+    <table border="1" cellpadding="8">
+ 
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Age</th>
+            <th>Course</th>
+            <th>Action</th>
+        </tr>
+ 
+        <tbody id="studentTable"></tbody>
+ 
+    </table>
+ 
+    <p id="message"></p>
+ 
+ 
+    <script>
+ 
+        var savedData = localStorage.getItem("students_db_sample");
+ 
+        if (savedData == null) {
+ 
+            var students = [
+                {id:"s1", name:"Alice Johnson", age:22, course:"Computer Science"},
+                {id:"s2", name:"Ben Carter", age:21, course:"Mathematics"},
+                {id:"s3", name:"Cara Diaz", age:23, course:"Physics"}
+            ];
+ 
+            localStorage.setItem(
+                "students_db_sample",
+                JSON.stringify(students)
+            );
+ 
+        } else {
+ 
+            var students = JSON.parse(savedData);
+ 
+        }
+ 
+ 
+        // Variable for editing
+        var editIndex = -1;
+ 
+ 
+        // ADD STUDENT
+        function addStudent() {
+ 
+            var id = document.getElementById("id").value;
+            var name = document.getElementById("name").value;
+            var age = document.getElementById("age").value;
+            var course = document.getElementById("course").value;
+ 
+            students.push({
+                id: id,
+                name: name,
+                age: age,
+                course: course
+            });
+ 
+            localStorage.setItem(
+                "students_db_sample",
+                JSON.stringify(students)
+            );
+ 
+            alert("Student added successfully.");
+ 
+            document.getElementById("message").innerHTML =
+                "Student added successfully.";
+ 
+            clearForm();
+ 
+            displayStudents();
+        }
+ 
+ 
+        // DISPLAY STUDENTS
+        function displayStudents() {
+ 
+            var table = "";
+ 
+            for (var i = 0; i < students.length; i++) {
+ 
+                table += "<tr>";
+ 
+                table += "<td>" + students[i].id + "</td>";
+                table += "<td>" + students[i].name + "</td>";
+                table += "<td>" + students[i].age + "</td>";
+                table += "<td>" + students[i].course + "</td>";
+ 
+                table += "<td>";
+ 
+                table += "<input type='button' value='Edit' ";
+                table += "onclick='editStudent(" + i + ")'> ";
+ 
+                table += "<input type='button' value='Delete' ";
+                table += "onclick='deleteStudent(" + i + ")'>";
+ 
+                table += "</td>";
+ 
+                table += "</tr>";
+            }
+ 
+            document.getElementById("studentTable").innerHTML = table;
+        }
+ 
+        // Variable for editing
+        var editIndex = -1;
+        // EDIT STUDENT
+        function editStudent(index) {
+ 
+            alert("You selected Edit.");
+ 
+            editIndex = index;
+ 
+            // Put selected student data into the same input form
+            document.getElementById("id").value =
+                students[index].id;
+ 
+            document.getElementById("name").value =
+                students[index].name;
+ 
+            document.getElementById("age").value =
+                students[index].age;
+ 
+            document.getElementById("course").value =
+                students[index].course;
+ 
+            // Change Add Student button to Update Student
+            document.getElementById("studentButton").value =
+                "Update Student";
+ 
+            document.getElementById("studentButton").onclick =
+                updateStudent;
+ 
+            document.getElementById("message").innerHTML =
+                "You are editing: " + students[index].name;
+        }
+ 
+ 
+        // UPDATE STUDENT
+        function updateStudent() {
+ 
+            var id = document.getElementById("id").value;
+            var name = document.getElementById("name").value;
+            var age = document.getElementById("age").value;
+            var course = document.getElementById("course").value;
+ 
+            students[editIndex] = {
+                id: id,
+                name: name,
+                age: age,
+                course: course
+            };
+ 
+            localStorage.setItem(
+                "students_db_sample",
+                JSON.stringify(students)
+            );
+ 
+            alert("Student updated successfully.");
+ 
+            document.getElementById("message").innerHTML =
+                "Student updated successfully.";
+ 
+            clearForm();
+ 
+            editIndex = -1;
+ 
+            // Change button back to Add Student
+            document.getElementById("studentButton").value =
+                "Add Student";
+ 
+            document.getElementById("studentButton").onclick =
+                addStudent;
+ 
+            displayStudents();
+        }
+ 
+ 
+        // DELETE STUDENT
+        function deleteStudent(index) {
+ 
+            var answer = confirm(
+                "Are you sure you want to delete " +
+                students[index].name + "?"
+            );
+ 
+            if (answer == true) {
+ 
+                students.splice(index, 1);
+ 
+                localStorage.setItem(
+                    "students_db_sample",
+                    JSON.stringify(students)
+                );
+ 
+                alert("Student deleted successfully.");
+ 
+                document.getElementById("message").innerHTML =
+                    "Student deleted successfully.";
+ 
+                displayStudents();
+ 
+            } else {
+ 
+                alert("Delete cancelled.");
+ 
+            }
+        }
+ 
+ 
+        // CLEAR FORM
+        function clearForm() {
+ 
+            document.getElementById("id").value = "";
+            document.getElementById("name").value = "";
+            document.getElementById("age").value = "";
+            document.getElementById("course").value = "";
+        }
+ 
+ 
+        // DISPLAY DATA WHEN PAGE LOADS
+        displayStudents();
+ 
+    </script>
+ 
+</body>
+</html>
+ 

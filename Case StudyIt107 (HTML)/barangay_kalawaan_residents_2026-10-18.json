@@ -1,0 +1,30 @@
+[
+  {
+    "id": "RES-1001",
+    "firstName": "Carl Justin",
+    "middleName": "Roque",
+    "lastName": "Gutierrez",
+    "birthDate": "2006-11-01",
+    "age": 19,
+    "gender": "Male",
+    "civilStatus": "Single",
+    "address": "None of your Beewax",
+    "contact": "09676767667",
+    "emergencyContact": "Mother (097676767676)",
+    "status": "Active"
+  },
+  {
+    "id": "RES-1002",
+    "firstName": "John Vincent",
+    "middleName": "Abihay",
+    "lastName": "Peroramas",
+    "birthDate": "2007-04-14",
+    "age": 19,
+    "gender": "Male",
+    "civilStatus": "Single",
+    "address": "None of your Beewax",
+    "contact": "0969696969",
+    "emergencyContact": "Mother (099696966969)",
+    "status": "Active"
+  }
+]

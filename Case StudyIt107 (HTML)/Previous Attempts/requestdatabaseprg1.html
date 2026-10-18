@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Clearance Database</title>
+</head>
+<body>
+
+    <h1>Clearance Records</h1>
+    
+    <input type="text" id="requestid" placeholder="ID Number"><br><br>
+    <input type="text" id="lname" placeholder="Last Name"><br><br>
+    <input type="text" id="fname" placeholder="First Name"><br><br>
+    <input type="text" id="mname" placeholder="Middle Name"><br><br>
+    <input type="text" id="docu" placeholder="Document Type"><br><br>
+    <input type="date" id="datesub" placeholder="Date Submitted"><br><br>
+    <select id="reqstat">
+        <option value="Completed">Completed</option>
+        <option value="Ready">Ready</option>
+        <option value="For Review">For Review</option>
+        <option value="Incomplete">Incomplete</option>
+    </select>
+    <input type="button" id="requestButton" onclick="addRequest()" value="Add Request">
+
+    <hr>
+ 
+    <table border="1" cellpadding="8">
+        <tr>
+            <th>Request ID</th>
+            <th>Last Name</th>
+            <th>First Name</th>
+            <th>Middle Name</th>
+            <th>Document Type</th>
+            <th>Date Submitted</th>
+            <th>Request Status</th>
+            <th>Actions</th>
+        </tr>
+        <tbody id="requestTable"></tbody>
+    </table>
+ 
+    <p id="message"></p>
+ 
+    <script>
+        // Using a new storage key to avoid loading old corrupted cached data
+        var storageKey = "clearance_db_v2";
+        var savedData = localStorage.getItem(storageKey);
+        var requests = []; 
+ 
+        if (savedData == null) {
+            requests = [
+                {requestid: "676676767", lname: "Gutierrez", fname: "Carl Justin", mname: "Roque", docu: "Indigency", datesub: "2026-10-18", reqstat: "Completed"},
+                {requestid: "6969696969", lname: "Peroramas", fname: "John Vincent", mname: "Abihay", docu: "Business", datesub: "2026-10-18", reqstat: "For Review"}
+            ];
+            localStorage.setItem(storageKey, JSON.stringify(requests));
+        } else {
+            requests = JSON.parse(savedData);
+        }
+
+        var editIndex = -1;
+ 
+        // ADD REQUEST
+        function addRequest() {
+            var requestid = document.getElementById("requestid").value;
+            var lname = document.getElementById("lname").value;
+            var fname = document.getElementById("fname").value;
+            var mname = document.getElementById("mname").value;
+            var docu = document.getElementById("docu").value;
+            var datesub = document.getElementById("datesub").value;
+            var reqstat = document.getElementById("reqstat").value;
+ 
+            requests.push({
+                requestid: requestid,
+                lname: lname,
+                fname: fname,
+                mname: mname,
+                docu: docu,
+                datesub: datesub,
+                reqstat: reqstat
+            });
+ 
+            localStorage.setItem(storageKey, JSON.stringify(requests));
+            alert("Request added successfully.");
+            document.getElementById("message").innerHTML = "Request added successfully.";
+            clearForm();
+            displayRequests();
+        }
+ 
+        // DISPLAY REQUESTS
+        function displayRequests() {
+            var table = "";
+            for (var i = 0; i < requests.length; i++) {
+                table += "<tr>";
+                table += "<td>" + (requests[i].requestid || "") + "</td>";
+                table += "<td>" + (requests[i].lname || "") + "</td>";
+                table += "<td>" + (requests[i].fname || "") + "</td>";
+                table += "<td>" + (requests[i].mname || "") + "</td>";
+                table += "<td>" + (requests[i].docu || "") + "</td>";
+                table += "<td>" + (requests[i].datesub || "") + "</td>";
+                table += "<td>" + (requests[i].reqstat || "") + "</td>";
+                table += "<td>";
+                table += "<input type='button' value='Edit' onclick='editRequest(" + i + ")'> ";
+                table += "<input type='button' value='Delete' onclick='deleteRequest(" + i + ")'>";
+                table += "</td>";
+                table += "</tr>";
+            }
+            document.getElementById("requestTable").innerHTML = table;
+        }
+ 
+        // EDIT REQUEST
+        function editRequest(index) {
+            editIndex = index;
+ 
+            document.getElementById("requestid").value = requests[index].requestid;
+            document.getElementById("lname").value = requests[index].lname;
+            document.getElementById("fname").value = requests[index].fname;
+            document.getElementById("mname").value = requests[index].mname;
+            document.getElementById("docu").value = requests[index].docu;
+            document.getElementById("datesub").value = requests[index].datesub;
+            document.getElementById("reqstat").value = requests[index].reqstat;
+ 
+            document.getElementById("requestButton").value = "Update Request";
+            document.getElementById("requestButton").onclick = updateRequest;
+            document.getElementById("message").innerHTML = "You are editing: " + requests[index].fname + " " + requests[index].lname;
+        }
+
+        // UPDATE REQUEST
+        function updateRequest() {
+            var requestid = document.getElementById("requestid").value;
+            var lname = document.getElementById("lname").value;
+            var fname = document.getElementById("fname").value;
+            var mname = document.getElementById("mname").value;
+            var docu = document.getElementById("docu").value;
+            var datesub = document.getElementById("datesub").value;
+            var reqstat = document.getElementById("reqstat").value;
+ 
+            requests[editIndex] = {
+                requestid: requestid,
+                lname: lname,
+                fname: fname,
+                mname: mname,
+                docu: docu,
+                datesub: datesub,
+                reqstat: reqstat
+            };
+ 
+            localStorage.setItem(storageKey, JSON.stringify(requests));
+            alert("Request updated successfully.");
+            document.getElementById("message").innerHTML = "Request updated successfully.";
+            clearForm();
+            editIndex = -1;
+ 
+            document.getElementById("requestButton").value = "Add Request";
+            document.getElementById("requestButton").onclick = addRequest;
+            displayRequests();
+        }
+ 
+        // DELETE REQUEST
+        function deleteRequest(index) {
+            var answer = confirm("Are you sure you want to delete " + requests[index].fname + " " + requests[index].lname + "?");
+            if (answer == true) {
+                requests.splice(index, 1);
+                localStorage.setItem(storageKey, JSON.stringify(requests));
+                alert("Request deleted successfully.");
+                document.getElementById("message").innerHTML = "Request deleted successfully.";
+                displayRequests();
+            } else {
+                alert("Delete cancelled.");
+            }
+        }
+ 
+        // CLEAR FORM
+        function clearForm() {
+            document.getElementById("requestid").value = "";
+            document.getElementById("lname").value = "";
+            document.getElementById("fname").value = "";
+            document.getElementById("mname").value = "";
+            document.getElementById("docu").value = "";
+            document.getElementById("datesub").value = "";
+            document.getElementById("reqstat").selectedIndex = 0;
+        }
+
+        displayRequests();
+    </script>
+</body>
+</html>

@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kalawaan Barangay Information System</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f6f9;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+
+        h1 {
+            text-align: center;
+            color: #222;
+        }
+
+        #message {
+            text-align: center;
+            font-weight: bold;
+            color: #28a745;
+            margin-bottom: 20px;
+        }
+
+        /* NAVIGATION TABS */
+        .nav-container {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            background-color: #e0e0e0;
+            border: none;
+            padding: 10px 20px;
+            font-size: 15px;
+            font-weight: bold;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .tab-btn.active {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .tab-btn:hover {
+            background-color: #d0d0d0;
+        }
+
+        .tab-btn.active:hover {
+            background-color: #0056b3;
+        }
+
+        /* MAIN CONTAINER LAYOUT */
+        .app-container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* VIEW TOGGLE STYLES */
+        .view-section {
+            display: none; /* Hidden by default */
+            background: #ffffff;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .view-section.active {
+            display: block; /* Shown when active */
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-weight: bold;
+            font-size: 13px;
+            margin-bottom: 5px;
+            color: #555;
+        }
+
+        .form-group input, .form-group select {
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .form-actions {
+            text-align: right;
+        }
+
+        .btn-primary {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-weight: bold;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .btn-primary:hover {
+            background-color: #218838;
+        }
+
+        /* SEARCH TOOLBAR */
+        .search-toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-items: center;
+            margin-bottom: 20px;
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+        }
+
+        .search-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .search-group input, .search-group select {
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        /* TABLE STYLING */
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #fff;
+        }
+
+        th, td {
+            border: 1px solid #e0e0e0;
+            text-align: left;
+            padding: 10px;
+            font-size: 13px;
+        }
+
+        th {
+            background-color: #007bff;
+            color: white;
+            white-space: nowrap;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        .btn-edit {
+            background-color: #25a7fd;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-right: 5px;
+        }
+
+        .btn-delete {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>Barangay Kalawaan Management System</h1>
+    <p id="message"></p>
+
+    <!-- NAVIGATION SWITCHER BUTTONS -->
+    <div class="nav-container">
+        <button id="btnResidentDatabase" class="tab-btn active" onclick="switchView('residentdatabase')">Resident Database</button>
+        <button id="btnResidentForm" class="tab-btn" onclick="switchView('residentform')">Resident Registration Form</button>
+        <button id="btnRequestDatabase" class="tab-btn" onclick="switchView('requestdatabase')">Clearance Records</button>
+        <button id="btnRequestForm" class="tab-btn" onclick="switchView('requestform')">Clearance Request Form</button>
+    </div>
+
+    <div class="app-container">
+
+        <!-- ================= SECTION 1: RESIDENT DATABASE VIEW ================= -->
+        <div id="residentDatabaseSection" class="view-section active">
+            <h3>Inhabitants Database</h3>
+            
+            <div class="search-toolbar">
+                <div class="search-group">
+                    <label><b>Entire Search:</b></label>
+                    <input id="entireSearch" type="text" placeholder="Search anything...">
+                </div>
+
+                <div class="search-group">
+                    <label><b>Column Filter:</b></label>
+                    <select id="columnSelect">
+                        <option value="all">All Columns</option>
+                        <option value="id">ID</option>
+                        <option value="lname">Last Name</option>
+                        <option value="fname">First Name</option>
+                        <option value="mname">Middle Name</option>
+                        <option value="address">Address</option>
+                        <option value="occupation">Occupation</option>
+                    </select>
+                    <input id="columnSearch" type="text" placeholder="Search column...">
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Last Name</th>
+                            <th>First Name</th>
+                            <th>Middle Name</th>
+                            <th>Age</th>
+                            <th>Sex</th>
+                            <th>Marital Status</th>
+                            <th>Address</th>
+                            <th>Occupation</th>
+                            <th>Household Info</th>
+                            <th>Years in Barangay</th>
+                            <th>Email</th>
+                            <th>Contact Number</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="inhabitants">
+                        <!-- Resident data dynamically loads here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ================= SECTION 2: RESIDENT FORM VIEW ================= -->
+        <div id="residentFormSection" class="view-section">
+            <h3 id="residentFormTitle">Resident Registration Form</h3>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>ID</label>
+                    <input type="text" id="id" placeholder="Enter ID">
+                </div>
+                <div class="form-group">
+                    <label>Last Name</label>
+                    <input type="text" id="lname" placeholder="Last Name">
+                </div>
+                <div class="form-group">
+                    <label>First Name</label>
+                    <input type="text" id="fname" placeholder="First Name">
+                </div>
+                <div class="form-group">
+                    <label>Middle Name</label>
+                    <input type="text" id="mname" placeholder="Middle Name">
+                </div>
+                <div class="form-group">
+                    <label>Age</label>
+                    <input type="number" id="age" placeholder="Age">
+                </div>
+                <div class="form-group">
+                    <label>Sex</label>
+                    <select id="sex">
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Marital Status</label>
+                    <input type="text" id="mstat" placeholder="Marital Status">
+                </div>
+                <div class="form-group">
+                    <label>Address</label>
+                    <input type="text" id="address" placeholder="Address">
+                </div>
+                <div class="form-group">
+                    <label>Occupation</label>
+                    <input type="text" id="occupation" placeholder="Occupation">
+                </div>
+                <div class="form-group">
+                    <label>Household Information</label>
+                    <input type="text" id="houseinfo" placeholder="Household Info">
+                </div>
+                <div class="form-group">
+                    <label>Years in Barangay</label>
+                    <input type="text" id="yearsin" placeholder="Years in Barangay">
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="email" placeholder="Email">
+                </div>
+                <div class="form-group">
+                    <label>Contact Number</label>
+                    <input type="text" id="numberr" placeholder="Contact Number">
+                </div>
+            </div>
+            <div class="form-actions">
+                <input type="button" id="inhabitantButton" value="Add Resident" class="btn-primary" onclick="addInhabitant()">
+            </div>
+        </div>
+
+        <!-- ================= SECTION 3: REQUEST DATABASE VIEW ================= -->
+        <div id="requestDatabaseSection" class="view-section">
+            <h3>Clearance Records</h3>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Request ID</th>
+                            <th>Last Name</th>
+                            <th>First Name</th>
+                            <th>Middle Name</th>
+                            <th>Document Type</th>
+                            <th>Date Submitted</th>
+                            <th>Request Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="requestTable">
+                        <!-- Request data dynamically loads here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ================= SECTION 4: REQUEST FORM VIEW ================= -->
+        <div id="requestFormSection" class="view-section">
+            <h3 id="requestFormTitle">Clearance Request Form</h3>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>ID Number</label>
+                    <input type="text" id="requestid" placeholder="ID Number">
+                </div>
+                <div class="form-group">
+                    <label>Last Name</label>
+                    <input type="text" id="reqlname" placeholder="Last Name">
+                </div>
+                <div class="form-group">
+                    <label>First Name</label>
+                    <input type="text" id="reqfname" placeholder="First Name">
+                </div>
+                <div class="form-group">
+                    <label>Middle Name</label>
+                    <input type="text" id="reqmname" placeholder="Middle Name">
+                </div>
+                <div class="form-group">
+                    <label>Document Type</label>
+                    <input type="text" id="docu" placeholder="Document Type">
+                </div>
+                <div class="form-group">
+                    <label>Date Submitted</label>
+                    <input type="date" id="datesub">
+                </div>
+                <div class="form-group">
+                    <label>Request Status</label>
+                    <select id="reqstat">
+                        <option value="Completed">Completed</option>
+                        <option value="Ready">Ready</option>
+                        <option value="For Review">For Review</option>
+                        <option value="Incomplete">Incomplete</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-actions">
+                <input type="button" id="requestButton" value="Add Request" class="btn-primary" onclick="addRequest()">
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ================= JAVASCRIPT LOGIC ================= -->
+    <script>
+        // FUNCTION TO SWITCH BETWEEN ALL 4 VIEWS
+        function switchView(viewName) {
+            // Hide all sections
+            document.getElementById("residentDatabaseSection").classList.remove("active");
+            document.getElementById("residentFormSection").classList.remove("active");
+            document.getElementById("requestDatabaseSection").classList.remove("active");
+            document.getElementById("requestFormSection").classList.remove("active");
+
+            // Remove active class from all navigation buttons
+            document.getElementById("btnResidentDatabase").classList.remove("active");
+            document.getElementById("btnResidentForm").classList.remove("active");
+            document.getElementById("btnRequestDatabase").classList.remove("active");
+            document.getElementById("btnRequestForm").classList.remove("active");
+
+            // Activate chosen view & button
+            if (viewName === 'residentdatabase') {
+                document.getElementById("residentDatabaseSection").classList.add("active");
+                document.getElementById("btnResidentDatabase").classList.add("active");
+                displayInhabitants();
+            } else if (viewName === 'residentform') {
+                document.getElementById("residentFormSection").classList.add("active");
+                document.getElementById("btnResidentForm").classList.add("active");
+            } else if (viewName === 'requestdatabase') {
+                document.getElementById("requestDatabaseSection").classList.add("active");
+                document.getElementById("btnRequestDatabase").classList.add("active");
+                displayRequests();
+            } else if (viewName === 'requestform') {
+                document.getElementById("requestFormSection").classList.add("active");
+                document.getElementById("btnRequestForm").classList.add("active");
+            }
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // ================= RESIDENTS LOGIC =================
+        var savedResidents = localStorage.getItem("residents_db_sample");
+        var inhabitants = []; 
+
+        if (savedResidents == null) {
+            inhabitants = [
+                {id:"676676767", lname:"Gutierrez", fname:"Carl Justin", mname:"Roque", age:19, sex:"Male", mstat:"Single", address:"Kalawaan", occupation:"Student", houseinfo:"Resident", yearsin:"19", email:"gutierrezcarljustin1@gmail.com", numberr:"09888888888"},
+                {id:"3939393939", lname:"Peroramas", fname:"John Vincent", mname:"Abihay", age:19, sex:"Male", mstat:"Single", address:"Kalawaan", occupation:"Student", houseinfo:"Resident", yearsin:"19", email:"n/a", numberr:"090909090990"}
+            ];
+            localStorage.setItem("residents_db_sample", JSON.stringify(inhabitants));
+        } else {
+            inhabitants = JSON.parse(savedResidents);
+        }
+
+        var editResidentIndex = -1;
+
+        function addInhabitant() {
+            var id = document.getElementById("id").value;
+            var lname = document.getElementById("lname").value;
+            var fname = document.getElementById("fname").value;
+            var mname = document.getElementById("mname").value;
+            var age = document.getElementById("age").value;
+            var sex = document.getElementById("sex").value;
+            var mstat = document.getElementById("mstat").value;
+            var address = document.getElementById("address").value;
+            var occupation = document.getElementById("occupation").value;
+            var houseinfo = document.getElementById("houseinfo").value;
+            var yearsin = document.getElementById("yearsin").value;
+            var email = document.getElementById("email").value;
+            var numberr = document.getElementById("numberr").value;
+
+            if(!id || !lname || !fname) {
+                alert("Please fill out at least ID, Last Name, and First Name.");
+                return;
+            }
+
+            inhabitants.push({ id, lname, fname, mname, age, sex, mstat, address, occupation, houseinfo, yearsin, email, numberr });
+            localStorage.setItem("residents_db_sample", JSON.stringify(inhabitants));
+            document.getElementById("message").innerHTML = "Inhabitant added successfully.";
+            clearResidentForm();
+            displayInhabitants();
+            switchView('residentdatabase');
+        }
+
+        function displayInhabitants() {
+            var table = "";
+            for (var i = 0; i < inhabitants.length; i++) {
+                table += "<tr>";
+                table += "<td>" + (inhabitants[i].id || "") + "</td>";
+                table += "<td>" + (inhabitants[i].lname || "") + "</td>";
+                table += "<td>" + (inhabitants[i].fname || "") + "</td>";
+                table += "<td>" + (inhabitants[i].mname || "") + "</td>";
+                table += "<td>" + (inhabitants[i].age || "") + "</td>";
+                table += "<td>" + (inhabitants[i].sex || "") + "</td>";
+                table += "<td>" + (inhabitants[i].mstat || "") + "</td>";
+                table += "<td>" + (inhabitants[i].address || "") + "</td>";
+                table += "<td>" + (inhabitants[i].occupation || "") + "</td>";
+                table += "<td>" + (inhabitants[i].houseinfo || "") + "</td>";
+                table += "<td>" + (inhabitants[i].yearsin || "") + "</td>";
+                table += "<td>" + (inhabitants[i].email || "") + "</td>";
+                table += "<td>" + (inhabitants[i].numberr || "") + "</td>";
+                table += "<td>";
+                table += "<button class='btn-edit' onclick='editInhabitant(" + i + ")'>Edit</button>";
+                table += "<button class='btn-delete' onclick='deleteInhabitant(" + i + ")'>Delete</button>";
+                table += "</td>";
+                table += "</tr>";
+            }
+            document.getElementById("inhabitants").innerHTML = table;
+        }
+
+        function editInhabitant(index) {
+            editResidentIndex = index;
+            document.getElementById("id").value = inhabitants[index].id;
+            document.getElementById("lname").value = inhabitants[index].lname;
+            document.getElementById("fname").value = inhabitants[index].fname;
+            document.getElementById("mname").value = inhabitants[index].mname;
+            document.getElementById("age").value = inhabitants[index].age;
+            document.getElementById("sex").value = inhabitants[index].sex;
+            document.getElementById("mstat").value = inhabitants[index].mstat;
+            document.getElementById("address").value = inhabitants[index].address;
+            document.getElementById("occupation").value = inhabitants[index].occupation;
+            document.getElementById("houseinfo").value = inhabitants[index].houseinfo;
+            document.getElementById("yearsin").value = inhabitants[index].yearsin;
+            document.getElementById("email").value = inhabitants[index].email;
+            document.getElementById("numberr").value = inhabitants[index].numberr;
+
+            var btn = document.getElementById("inhabitantButton");
+            btn.value = "Update Resident";
+            btn.onclick = updateInhabitant;
+            document.getElementById("message").innerHTML = "Editing record for: " + inhabitants[index].fname + " " + inhabitants[index].lname;
+            
+            switchView('residentform');
+        }
+
+        function updateInhabitant() {
+            inhabitants[editResidentIndex] = {
+                id: document.getElementById("id").value,
+                lname: document.getElementById("lname").value,
+                fname: document.getElementById("fname").value,
+                mname: document.getElementById("mname").value,
+                age: document.getElementById("age").value,
+                sex: document.getElementById("sex").value,
+                mstat: document.getElementById("mstat").value,
+                address: document.getElementById("address").value,
+                occupation: document.getElementById("occupation").value,
+                houseinfo: document.getElementById("houseinfo").value,
+                yearsin: document.getElementById("yearsin").value,
+                email: document.getElementById("email").value,
+                numberr: document.getElementById("numberr").value
+            };
+
+            localStorage.setItem("residents_db_sample", JSON.stringify(inhabitants));
+            document.getElementById("message").innerHTML = "Inhabitant updated successfully.";
+            clearResidentForm();
+            editResidentIndex = -1;
+
+            var btn = document.getElementById("inhabitantButton");
+            btn.value = "Add Resident";
+            btn.onclick = addInhabitant;
+            displayInhabitants();
+            switchView('residentdatabase');
+        }
+
+        function deleteInhabitant(index) {
+            var answer = confirm("Are you sure you want to delete " + inhabitants[index].fname + " " + inhabitants[index].lname + "?");
+            if (answer) {
+                inhabitants.splice(index, 1);
+                localStorage.setItem("residents_db_sample", JSON.stringify(inhabitants));
+                document.getElementById("message").innerHTML = "Inhabitant deleted successfully.";
+                displayInhabitants();
+            }
+        }
+
+        function clearResidentForm() {
+            document.getElementById("id").value = "";
+            document.getElementById("lname").value = "";
+            document.getElementById("fname").value = "";
+            document.getElementById("mname").value = "";
+            document.getElementById("age").value = "";
+            document.getElementById("mstat").value = "";
+            document.getElementById("address").value = "";
+            document.getElementById("occupation").value = "";
+            document.getElementById("houseinfo").value = "";
+            document.getElementById("yearsin").value = "";
+            document.getElementById("email").value = "";
+            document.getElementById("numberr").value = "";
+        }
+
+
+        // ================= REQUESTS LOGIC =================
+        var requestStorageKey = "clearance_db_v2";
+        var savedRequests = localStorage.getItem(requestStorageKey);
+        var requests = []; 
+
+        if (savedRequests == null) {
+            requests = [
+                {requestid: "676676767", lname: "Gutierrez", fname: "Carl Justin", mname: "Roque", docu: "Indigency", datesub: "2026-10-18", reqstat: "Completed"},
+                {requestid: "6969696969", lname: "Peroramas", fname: "John Vincent", mname: "Abihay", docu: "Business", datesub: "2026-10-18", reqstat: "For Review"}
+            ];
+            localStorage.setItem(requestStorageKey, JSON.stringify(requests));
+        } else {
+            requests = JSON.parse(savedRequests);
+        }
+
+        var editRequestIndex = -1;
+
+        function addRequest() {
+            var requestid = document.getElementById("requestid").value;
+            var lname = document.getElementById("reqlname").value;
+            var fname = document.getElementById("reqfname").value;
+            var mname = document.getElementById("reqmname").value;
+            var docu = document.getElementById("docu").value;
+            var datesub = document.getElementById("datesub").value;
+            var reqstat = document.getElementById("reqstat").value;
+
+            if(!requestid || !lname || !fname) {
+                alert("Please fill out at least Request ID, Last Name, and First Name.");
+                return;
+            }
+
+            requests.push({ requestid, lname, fname, mname, docu, datesub, reqstat });
+
+            localStorage.setItem(requestStorageKey, JSON.stringify(requests));
+            document.getElementById("message").innerHTML = "Request added successfully.";
+            clearRequestForm();
+            displayRequests();
+            switchView('requestdatabase');
+        }
+
+        function displayRequests() {
+            var table = "";
+            for (var i = 0; i < requests.length; i++) {
+                table += "<tr>";
+                table += "<td>" + (requests[i].requestid || "") + "</td>";
+                table += "<td>" + (requests[i].lname || "") + "</td>";
+                table += "<td>" + (requests[i].fname || "") + "</td>";
+                table += "<td>" + (requests[i].mname || "") + "</td>";
+                table += "<td>" + (requests[i].docu || "") + "</td>";
+                table += "<td>" + (requests[i].datesub || "") + "</td>";
+                table += "<td>" + (requests[i].reqstat || "") + "</td>";
+                table += "<td>";
+                table += "<button class='btn-edit' onclick='editRequest(" + i + ")'>Edit</button>";
+                table += "<button class='btn-delete' onclick='deleteRequest(" + i + ")'>Delete</button>";
+                table += "</td>";
+                table += "</tr>";
+            }
+            document.getElementById("requestTable").innerHTML = table;
+        }
+
+        function editRequest(index) {
+            editRequestIndex = index;
+            document.getElementById("requestid").value = requests[index].requestid;
+            document.getElementById("reqlname").value = requests[index].lname;
+            document.getElementById("reqfname").value = requests[index].fname;
+            document.getElementById("reqmname").value = requests[index].mname;
+            document.getElementById("docu").value = requests[index].docu;
+            document.getElementById("datesub").value = requests[index].datesub;
+            document.getElementById("reqstat").value = requests[index].reqstat;
+
+            var btn = document.getElementById("requestButton");
+            btn.value = "Update Request";
+            btn.onclick = updateRequest;
+            document.getElementById("message").innerHTML = "You are editing request for: " + requests[index].fname + " " + requests[index].lname;
+            
+            switchView('requestform');
+        }
+
+        function updateRequest() {
+            requests[editRequestIndex] = {
+                requestid: document.getElementById("requestid").value,
+                lname: document.getElementById("reqlname").value,
+                fname: document.getElementById("reqfname").value,
+                mname: document.getElementById("reqmname").value,
+                docu: document.getElementById("docu").value,
+                datesub: document.getElementById("datesub").value,
+                reqstat: document.getElementById("reqstat").value
+            };
+
+            localStorage.setItem(requestStorageKey, JSON.stringify(requests));
+            document.getElementById("message").innerHTML = "Request updated successfully.";
+            clearRequestForm();
+            editRequestIndex = -1;
+
+            var btn = document.getElementById("requestButton");
+            btn.value = "Add Request";
+            btn.onclick = addRequest;
+            displayRequests();
+            switchView('requestdatabase');
+        }
+
+        function deleteRequest(index) {
+            var answer = confirm("Are you sure you want to delete request for " + requests[index].fname + " " + requests[index].lname + "?");
+            if (answer == true) {
+                requests.splice(index, 1);
+                localStorage.setItem(requestStorageKey, JSON.stringify(requests));
+                document.getElementById("message").innerHTML = "Request deleted successfully.";
+                displayRequests();
+            }
+        }
+
+        function clearRequestForm() {
+            document.getElementById("requestid").value = "";
+            document.getElementById("reqlname").value = "";
+            document.getElementById("reqfname").value = "";
+            document.getElementById("reqmname").value = "";
+            document.getElementById("docu").value = "";
+            document.getElementById("datesub").value = "";
+            document.getElementById("reqstat").selectedIndex = 0;
+        }
+
+
+        // ================= JQUERY SEARCH & FILTER =================
+        $(document).ready(function () {
+            displayInhabitants();
+            displayRequests();
+
+            $("#entireSearch, #columnSearch").on("keyup", function () {
+                let entireValue = $("#entireSearch").val().toLowerCase();
+                let columnValue = $("#columnSearch").val().toLowerCase();
+                let selectedColumn = $("#columnSelect").val();
+
+                $("#inhabitants tr").each(function () {
+                    let rowText = $(this).text().toLowerCase();
+                    let matchEntire = entireValue === "" || rowText.indexOf(entireValue) > -1;
+
+                    let matchColumn = true;
+                    if (selectedColumn !== "all" && columnValue !== "") {
+                        let colIndex = 1; // default to ID
+                        switch(selectedColumn) {
+                            case "id": colIndex = 1; break;
+                            case "lname": colIndex = 2; break;
+                            case "fname": colIndex = 3; break;
+                            case "mname": colIndex = 4; break;
+                            case "address": colIndex = 8; break;
+                            case "occupation": colIndex = 9; break;
+                        }
+                        let columnData = $(this).find("td:nth-child(" + colIndex + ")").text().toLowerCase();
+                        matchColumn = columnData.indexOf(columnValue) > -1;
+                    }
+
+                    $(this).toggle(matchEntire && matchColumn);
+                });
+            });
+        });
+    </script>
+</body>
+
+</html>
